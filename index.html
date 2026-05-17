@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RisEdge ATS CV Builder - V3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;500;700;900&display=swap');
+        
+        .font-ar { font-family: 'Cairo', sans-serif; }
+        .font-en { font-family: 'Inter', sans-serif; }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .a4-paper {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            position: relative;
+        }
+
+        /* تحسينات الطباعة لضمان قراءة النصوص من قبل أنظمة ATS */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            body * { visibility: hidden; }
+            #cv-document, #cv-document * { visibility: visible; }
+            #cv-document {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 210mm;
+                min-height: 297mm;
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 15mm !important;
+                background: white !important;
+            }
+            .print\:hidden { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900 selection:bg-teal-600 selection:text-white">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function App() {
+            const [lang, setLang] = useState('ar');
+
+            const translations = {
+                ar: {
+                    appName: "منصة RisEdge لبناء السير الذاتية الاحترافية",
+                    switchBtn: "Switch to English",
+                    printBtn: "تحميل PDF متوافق مع ATS",
+                    personal: "البيانات الشخصية والاتصال",
+                    fullName: "الاسم بالكامل",
+                    jobTitle: "المسمى الوظيفي",
+                    email: "البريد الإلكتروني",
+                    phone: "رقم الهاتف",
+                    location: "الموقع (المدينة، الدولة)",
+                    linkedin: "رابط حساب لي��كد إن",
+                    summary: "الملخص المهني (Summary)",
+                    experience: "الخبرات المهنية (Experience)",
+                    education: "التعليم الأكاديمي (Education)",
+                    certificates: "الشهادات والكورسات (Certifications)",
+                    languages: "اللغات (Languages)",
+                    skills: "المهارات الرئيسية (Core Skills)",
+                    addExpBtn: "+ إضافة خبرة",
+                    addEduBtn: "+ إضافة تعليم",
+                    addCertBtn: "+ إضافة شهادة",
+                    addLangBtn: "+ إضافة لغة",
+                    company: "اسم الشركة / المؤسسة",
+                    role: "الدور الوظيفي",
+                    date: "التاريخ (من - إلى)",
+                    desc: "المهام والإنجازات",
+                    school: "الجامعة / الكلية",
+                    degree: "الدرجة العلمية",
+                    year: "سنة التخرج",
+                    certName: "اسم الشهادة / الكورس",
+                    authority: "الجهة المانحة",
+                    certYear: "سنة الحصول عليها",
+                    langName: "اللغة",
+                    langLevel: "المستوى (مثال: لغة الأم، طلاقة)",
+                    skillsPlaceholder: "أدخل المهارات وافصل بينها بفاصلة",
+                    deleteBtn: "حذف",
+                    footerNotice: "تمت المراجعة والتطوير بواسطة أدوات RisEdge المهنية | 2026"
+                },
+                en: {
+                    appName: "RisEdge Premium CV Builder",
+                    switchBtn: "التبديل للعربية",
+                    printBtn: "Download ATS PDF",
+                    personal: "Contact Info",
+                    fullName: "Full Name",
+                    jobTitle: "Job Title",
+                    email: "Email Address",
+                    phone: "Phone Number",
+                    location: "Location",
+                    linkedin: "LinkedIn URL",
+                    summary: "Professional Summary",
+                    experience: "Experience",
+                    education: "Education",
+                    certificates: "Certifications",
+                    languages: "Languages",
+                    skills: "Core Skills",
+                    addExpBtn: "+ Add Experience",
+                    addEduBtn: "+ Add Education",
+                    addCertBtn: "+ Add Certification",
+                    addLangBtn: "+ Add Language",
+                    company: "Company Name",
+                    role: "Job Role",
+                    date: "Period (e.g., 2023 - Present)",
+                    desc: "Key Responsibilities",
+                    school: "Institution",
+                    degree: "Degree",
+                    year: "Year",
+                    certName: "Cert Title",
+                    authority: "Issuing Org",
+                    certYear: "Year",
+                    langName: "Language",
+                    langLevel: "Proficiency (e.g., Native, Fluent)",
+                    skillsPlaceholder: "Enter skills separated by commas",
+                    deleteBtn: "Remove",
+                    footerNotice: "Developed via RisEdge Professional Career Tools | 2026"
+                }
+            };
+
+            const defaultData = {
+                ar: {
+                    personal: { fullName: 'حازم موسى', jobTitle: 'مستشار موارد بشرية وخبير تطوير تنظيمي', email: 'hazem@risedge.com', phone: '+20 100 000 0000', location: 'الإسكندرية، مصر', linkedin: 'linkedin.com/in/hazemmoussa' },
+                    summary: 'مستشار موارد بشرية وخبير متمرس في التطوير التنظيمي وإعادة هيكلة الشركات وبناء الكوادر البشرية والتدريب الاحترافي. متخصص في دمج الأنظمة الرقمية الحديثة وتطبيقات الذكاء الاصطناعي لأتمتة عمليات الأجور والرواتب وشؤون العاملين، مع دراية متعمقة وتحديثات تشريعات العمل المصرية والتأمينات الاجتماعية وقانون العمل رقم 14 لسنة 2025.',
+                    experience: [
+                        { id: 1, company: 'RisEdge Consulting', role: 'المؤسس ومستشار الموارد البشرية الرئيسي', date: '2023 - الحاضر', desc: '• قيادة وتقديم الاستشارات الاستراتيجية في مجالات الهياكل التنظيمية وإدارة المواهب للشركات.\n• تصميم وتنفيذ برامج تدريبية متخصصة لرفع كفاءة مديري وموظفي الإدارات الم��تلفة.\n• تطوير أدوات رقمية وحلول أتمتة متقدمة لحساب الأجور والتأمينات الاجتماعية لتبسيط الإجراءات الإدارية المعقدة.' }
+                    ],
+                    education: [
+                        { id: 1, school: 'جامعة الإسكندرية', degree: 'بكالوريوس التجارة', year: '2007' }
+                    ],
+                    certificates: [
+                        { id: 1, name: 'شهادة محترف موارد بشرية معتمد (CHRP)', authority: 'إدارة الأعمال والموارد البشرية الدولية', year: '2015' }
+                    ],
+                    languages: [
+                        { id: 1, name: 'العربية', level: 'اللغة الأم' },
+                        { id: 2, name: 'الإنجليزية', level: 'طلاقة (إحترافي)' }
+                    ],
+                    skills: 'التطوير التنظيمي (OD)، قانون العمل المصري رقم 14 لسنة 2025، هيكلة الأجور والمزايا، أتمتة الرواتب بالذكاء الاصطناعي، التدريب والتوجيه الاحترافي، إدارة شؤون العاملين'
+                },
+                en: {
+                    personal: { fullName: 'Hazem Moussa', jobTitle: 'HR Consultant & Organizational Development Expert', email: 'hazem@risedge.com', phone: '+20 100 000 0000', location: 'Alexandria, Egypt', linkedin: 'linkedin.com/in/hazemmoussa' },
+                    summary: 'Seasoned HR Consultant and Organizational Development Expert specialized in corporate restructuring, premium corporate training, and talent development. master of modern Egyptian labor legislations including Law 14 of 2025.',
+                    experience: [
+                        { id: 1, company: 'RisEdge Consulting', role: 'Founder & Principal HR Consultant', date: '2023 - Present', desc: '• Leading custom structural restructuring and performance matrix engineering for elite organizations.\n• Instructing and facilitating highly specialized corporate development workshops and dynamic human capital bootcamps.' }
+                    ],
+                    education: [
+                        { id: 1, school: 'Alexandria University', degree: 'Bachelor of Commerce', year: '2007' },
+                    ],
+                    certificates: [
+                        { id: 1, name: 'Certified Human Resources Professional (CHRP)', authority: 'International HR Certification Institute', year: '2015' }
+                    ],
+                    languages: [
+                        { id: 1, name: 'Arabic', level: 'Native' },
+                        { id: 2, name: 'English', level: 'Full Professional Proficiency' }
+                    ],
+                    skills: 'Organizational Development (OD), Egyptian Labor Law 14/2025, Strategic Training & Facilitation, AI Payroll Integrations, Compensation & Benefits, Personnel Affairs Strategy'
+                }
+            };
+
+            const [data, setData] = useState(defaultData[lang]);
+            const t = translations[lang];
+
+            const handleLangSwitch = () => {
+                const newLang = lang === 'ar' ? 'en' : 'ar';
+                setLang(newLang);
+                setData(defaultData[newLang]);
+            };
+
+            const handlePrint = () => {
+                window.print();
+            };
+
+            const updatePersonal = (field, value) => {
+                setData({ ...data, personal: { ...data.personal, [field]: value } });
+            };
+
+            // Generic Add/Update/Delete functions for lists
+            const addItem = (listName, template) => {
+                setData({ ...data, [listName]: [...data[listName], { id: Date.now(), ...template }] });
+            };
+
+            const updateItem = (listName, id, field, value) => {
+                const updated = data[listName].map(item => item.id === id ? { ...item, [field]: value } : item);
+                setData({ ...data, [listName]: updated });
+            };
+
+            const deleteItem = (listName, id) => {
+                setData({ ...data, [listName]: data[listName].filter(item => item.id !== id) });
+            };
+
+            return (
+                <div className={`flex flex-col h-screen ${lang === 'ar' ? 'font-ar' : 'font-en'}`} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+                    
+                    {/* TOP NAVBAR (Hidden on Print) */}
+                    <header className="bg-[#0b2222] text-white px-6 py-4 flex justify-between items-center print:hidden shadow-lg z-30 border-b border-teal-800">
+                        <div className="flex items-center gap-3">
+                            <img src="./logo.jpg" alt="RisEdge Logo" className="h-10 w-10 object-cover rounded-md border border-teal-600" onError={(e)=>{e.target.style.display='none'}} />
+                            <div>
+                                <h1 className="text-lg font-black tracking-wide text-teal-300">RisEdge</h1>
+                                <p className="text-xs text-gray-400 -mt-1">{t.appName}</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-3">
+                            <button onClick={handleLangSwitch} className="px-4 py-2 bg-teal-900/60 hover:bg-teal-800 border border-teal-700 rounded-lg text-xs font-bold transition-all duration-200">
+                                {t.switchBtn}
+                            </button>
+                            <button onClick={handlePrint} className="px-5 py-2 bg-teal-600 hover:bg-teal-500 rounded-lg text-xs font-bold transition-all duration-200 flex items-center gap-2 shadow-md shadow-teal-950">
+                                <i className="fas fa-print"></i> {t.printBtn}
+                            </button>
+                        </div>
+                    </header>
+
+                    {/* MAIN WORKSPACE */}
+                    <div className="flex flex-1 overflow-hidden">
+                        
+                        {/* INPUT PANEL (Hidden on Print) */}
+                        <aside className="w-1/3 min-w-[380px] bg-white border-l border-r border-slate-200 p-6 overflow-y-auto custom-scrollbar print:hidden shadow-inner">
+                            {/* Personal Info */}
+                            <section className="mb-6">
+                                <h2 className="text-sm font-bold uppercase tracking-wider text-teal-800 mb-4 pb-1 border-b border-teal-100">{t.personal}</h2>
+                                <div className="space-y-3">
+                                    <input type="text" placeholder={t.fullName} value={data.personal.fullName} onChange={(e) => updatePersonal('fullName', e.target.value)} className="w-full text-sm border border-slate-300 p-2 rounded focus:border-teal-600 outline-none" />
+                                    <input type="text" placeholder={t.jobTitle} value={data.personal.jobTitle} onChange={(e) => updatePersonal('jobTitle', e.target.value)} className="w-full text-sm border border-slate-300 p-2 rounded focus:border-teal-600 outline-none" />
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <input type="text" placeholder={t.email} value={data.personal.email} onChange={(e) => updatePersonal('email', e.target.value)} className="w-full text-sm border border-slate-300 p-2 rounded focus:border-teal-600 outline-none" dir="ltr" />
+                                        <input type="text" placeholder={t.phone} value={data.personal.phone} onChange={(e) => updatePersonal('phone', e.target.value)} className="w-full text-sm border border-slate-300 p-2 rounded focus:border-teal-600 outline-none" dir="ltr" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <input type="text" placeholder={t.location} value={data.personal.location} onChange={(e) => updatePersonal('location', e.target.value)} className="w-full text-sm border border-slate-300 p-2 rounded focus:border-teal-600 outline-none" />
+                                        <input type="text" placeholder={t.linkedin} value={data.personal.linkedin} onChange={(e) => updatePersonal('linkedin', e.target.value)} className="w-full text-sm border border-slate-300 p-2 rounded focus:border-teal-600 outline-none" dir="ltr" />
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section className="mb-6">
+                                <h2 className="text-sm font-bold uppercase tracking-wider text-teal-800 mb-2">{t.summary}</h2>
+                                <textarea rows="4" value={data.summary} onChange={(e) => setData({...data, summary: e.target.value})} className="w-full text-sm border border-slate-300 p-2 rounded outline-none resize-none"></textarea>
+                            </section>
+
+                            {/* Dynamic Sections (Exp, Edu, Cert, Lang) */}
+                            {[
+                                { name: 'experience', title: t.experience, addBtn: t.addExpBtn, fields: [{n:'role', p:t.role}, {n:'company', p:t.company}, {n:'date', p:t.date}, {n:'desc', p:t.desc, area:true}], template: {role:'', company:'', date:'', desc:''} },
+                                { name: 'education', title: t.education, addBtn: t.addEduBtn, fields: [{n:'degree', p:t.degree}, {n:'school', p:t.school}, {n:'year', p:t.year}], template: {degree:'', school:'', year:''} },
+                                { name: 'certificates', title: t.certificates, addBtn: t.addCertBtn, fields: [{n:'name', p:t.certName}, {n:'authority', p:t.authority}, {n:'year', p:t.certYear}], template: {name:'', authority:'', year:''} },
+                                { name: 'languages', title: t.languages, addBtn: t.addLangBtn, fields: [{n:'name', p:t.langName}, {n:'level', p:t.langLevel}], template: {name:'', level:''} }
+                            ].map(sec => (
+                                <section key={sec.name} className="mb-6">
+                                    <div className="flex justify-between items-center mb-3 pb-1 border-b border-teal-100">
+                                        <h2 className="text-sm font-bold uppercase tracking-wider text-teal-800">{sec.title}</h2>
+                                        <button onClick={() => addItem(sec.name, sec.template)} className="text-[10px] bg-teal-50 text-teal-700 px-2 py-1 rounded font-bold">{sec.addBtn}</button>
+                                    </div>
+                                    {data[sec.name].map(item => (
+                                        <div key={item.id} className="p-3 bg-slate-50 rounded border mb-3 relative group">
+                                            <button onClick={() => deleteItem(sec.name, item.id)} className="absolute top-1 left-1 text-[10px] text-red-500 opacity-0 group-hover:opacity-100 transition">{t.deleteBtn}</button>
+                                            <div className="space-y-2">
+                                                {sec.fields.map(f => (
+                                                    f.area ? 
+                                                    <textarea key={f.n} rows="2" placeholder={f.p} value={item[f.n]} onChange={(e) => updateItem(sec.name, item.id, f.n, e.target.value)} className="w-full text-xs border p-1.5 rounded outline-none"></textarea> :
+                                                    <input key={f.n} type="text" placeholder={f.p} value={item[f.n]} onChange={(e) => updateItem(sec.name, item.id, f.n, e.target.value)} className="w-full text-xs border p-1.5 rounded outline-none" />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </section>
+                            ))}
+
+                            <section>
+                                <h2 className="text-sm font-bold uppercase tracking-wider text-teal-800 mb-2">{t.skills}</h2>
+                                <textarea rows="3" placeholder={t.skillsPlaceholder} value={data.skills} onChange={(e) => setData({...data, skills: e.target.value})} className="w-full text-sm border p-2 rounded outline-none"></textarea>
+                            </section>
+                        </aside>
+
+                        {/* PREVIEW PANEL */}
+                        <main className="flex-1 bg-slate-200 overflow-y-auto p-8 flex justify-center items-start custom-scrollbar">
+                            <div id="cv-document" className="a4-paper flex flex-col p-[15mm] text-slate-900">
+                                {/* Branding Watermark (Screen only) */}
+                                <div className="absolute inset-0 flex justify-center items-center pointer-events-none opacity-[0.03] print:hidden">
+                                    <img src="./logo.jpg" alt="" className="w-1/2" onError={(e)=>e.target.style.display='none'} />
+                                </div>
+
+                                <div className="z-10 relative flex-1">
+                                    {/* Header */}
+                                    <div className="text-center mb-6 border-b-2 border-slate-900 pb-4">
+                                        <h1 className="text-2xl font-bold uppercase mb-1">{data.personal.fullName || t.fullName}</h1>
+                                        <h2 className="text-sm font-semibold text-slate-700 uppercase mb-3">{data.personal.jobTitle || t.jobTitle}</h2>
+                                        <div className="flex flex-wrap justify-center gap-x-4 text-xs text-slate-600 font-medium">
+                                            {data.personal.location && <span>{data.personal.location}</span>}
+                                            {data.personal.phone && <span dir="ltr">{data.personal.phone}</span>}
+                                            {data.personal.email && <span>{data.personal.email}</span>}
+                                            {data.personal.linkedin && <span>{data.personal.linkedin}</span>}
+                                        </div>
+                                    </div>
+
+                                    {/* ATS Linear Layout Sections */}
+                                    {[
+                                        { title: t.summary, content: <p className="text-xs text-justify leading-relaxed whitespace-pre-line">{data.summary}</p>, show: !!data.summary },
+                                        { 
+                                            title: t.experience, 
+                                            show: data.experience.length > 0,
+                                            content: data.experience.map(exp => (
+                                                <div key={exp.id} className="mb-3 break-inside-avoid">
+                                                    <div className="flex justify-between items-baseline mb-0.5 font-bold text-xs uppercase">
+                                                        <span>{exp.role}</span>
+                                                        <span dir="ltr" className="text-[10px]">{exp.date}</span>
+                                                    </div>
+                                                    <div className="text-xs font-semibold mb-1 italic">{exp.company}</div>
+                                                    <p className="text-xs text-slate-700 whitespace-pre-line leading-relaxed">{exp.desc}</p>
+                                                </div>
+                                            ))
+                                        },
+                                        {
+                                            title: t.education,
+                                            show: data.education.length > 0,
+                                            content: data.education.map(edu => (
+                                                <div key={edu.id} className="mb-2 flex justify-between items-baseline break-inside-avoid text-xs">
+                                                    <div><span className="font-bold uppercase">{edu.degree}</span> | {edu.school}</div>
+                                                    <span className="font-bold text-[10px]" dir="ltr">{edu.year}</span>
+                                                </div>
+                                            ))
+                                        },
+                                        {
+                                            title: t.certificates,
+                                            show: data.certificates.length > 0,
+                                            content: data.certificates.map(cert => (
+                                                <div key={cert.id} className="mb-2 flex justify-between items-baseline break-inside-avoid text-xs">
+                                                    <div><span className="font-bold uppercase">{cert.name}</span> | {cert.authority}</div>
+                                                    <span className="font-bold text-[10px]" dir="ltr">{cert.year}</span>
+                                                </div>
+                                            ))
+                                        },
+                                        {
+                                            title: t.languages,
+                                            show: data.languages.length > 0,
+                                            content: <div className="text-xs font-medium">
+                                                {data.languages.map((l, i) => (
+                                                    <span key={l.id}>{l.name} ({l.level}){i < data.languages.length-1 ? ' • ' : ''}</span>
+                                                ))}
+                                            </div>
+                                        },
+                                        {
+                                            title: t.skills,
+                                            show: !!data.skills,
+                                            content: <p className="text-xs leading-relaxed">{data.skills}</p>
+                                        }
+                                    ].map((sec, i) => sec.show && (
+                                        <div key={i} className="mb-5">
+                                            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900 border-b border-slate-400 mb-2 pb-0.5">{sec.title}</h3>
+                                            {sec.content}
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="absolute bottom-4 left-0 w-full text-center print:hidden opacity-30 text-[10px] font-bold text-slate-600 uppercase">
+                                    {t.footerNotice}
+                                </div>
+                            </div>
+                        </main>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
