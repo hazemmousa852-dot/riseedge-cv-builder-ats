@@ -21,34 +21,65 @@
 
         .a4-paper {
             width: 210mm;
-            min-height: 297mm;
+            height: 297mm;
             background: white;
             box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* تحسينات الطباعة لضمان قراءة النصوص من قبل أنظمة ATS */
+        /* Print optimization for ATS systems */
+        @page {
+            size: A4;
+            margin: 0;
+            padding: 0;
+        }
+
         @media print {
-            body {
-                background: white !important;
-                color: black !important;
+            * {
                 margin: 0 !important;
                 padding: 0 !important;
             }
-            body * { visibility: hidden; }
-            #cv-document, #cv-document * { visibility: visible; }
+            
+            html, body {
+                width: 210mm !important;
+                height: 297mm !important;
+                background: white !important;
+                color: black !important;
+            }
+            
+            body * { 
+                visibility: hidden; 
+            }
+            
+            #cv-document, #cv-document * { 
+                visibility: visible; 
+            }
+            
             #cv-document {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 210mm;
-                min-height: 297mm;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 210mm !important;
+                height: 297mm !important;
                 box-shadow: none !important;
                 margin: 0 !important;
                 padding: 15mm !important;
                 background: white !important;
+                display: block !important;
+                page-break-after: always;
             }
-            .print\:hidden { display: none !important; }
+            
+            .print\:hidden { 
+                display: none !important; 
+            }
+            
+            .a4-paper {
+                width: 210mm !important;
+                height: 297mm !important;
+                box-shadow: none !important;
+            }
         }
     </style>
 </head>
@@ -72,7 +103,7 @@
                     email: "البريد الإلكتروني",
                     phone: "رقم الهاتف",
                     location: "الموقع (المدينة، الدولة)",
-                    linkedin: "رابط حساب لي��كد إن",
+                    linkedin: "رابط حساب لينكد إن",
                     summary: "الملخص المهني (Summary)",
                     experience: "الخبرات المهنية (Experience)",
                     education: "التعليم الأكاديمي (Education)",
@@ -143,7 +174,7 @@
                     personal: { fullName: 'حازم موسى', jobTitle: 'مستشار موارد بشرية وخبير تطوير تنظيمي', email: 'hazem@risedge.com', phone: '+20 100 000 0000', location: 'الإسكندرية، مصر', linkedin: 'linkedin.com/in/hazemmoussa' },
                     summary: 'مستشار موارد بشرية وخبير متمرس في التطوير التنظيمي وإعادة هيكلة الشركات وبناء الكوادر البشرية والتدريب الاحترافي. متخصص في دمج الأنظمة الرقمية الحديثة وتطبيقات الذكاء الاصطناعي لأتمتة عمليات الأجور والرواتب وشؤون العاملين، مع دراية متعمقة وتحديثات تشريعات العمل المصرية والتأمينات الاجتماعية وقانون العمل رقم 14 لسنة 2025.',
                     experience: [
-                        { id: 1, company: 'RisEdge Consulting', role: 'المؤسس ومستشار الموارد البشرية الرئيسي', date: '2023 - الحاضر', desc: '• قيادة وتقديم الاستشارات الاستراتيجية في مجالات الهياكل التنظيمية وإدارة المواهب للشركات.\n• تصميم وتنفيذ برامج تدريبية متخصصة لرفع كفاءة مديري وموظفي الإدارات الم��تلفة.\n• تطوير أدوات رقمية وحلول أتمتة متقدمة لحساب الأجور والتأمينات الاجتماعية لتبسيط الإجراءات الإدارية المعقدة.' }
+                        { id: 1, company: 'RisEdge Consulting', role: 'المؤسس ومستشار الموارد البشرية الرئيسي', date: '2023 - الحاضر', desc: '• قيادة وتقديم الاستشارات الاستراتيجية في مجالات الهياكل التنظيمية وإدارة المواهب للشركات.\n• تصميم وتنفيذ برامج تدريبية متخصصة لرفع كفاءة مديري وموظفي الإدارات المختلفة.\n• تطوير أدوات رقمية وحلول أتمتة متقدمة لحساب الأجور والتأمينات الاجتماعية لتبسيط الإجراءات الإدارية المعقدة.' }
                     ],
                     education: [
                         { id: 1, school: 'جامعة الإسكندرية', degree: 'بكالوريوس التجارة', year: '2007' }
@@ -292,13 +323,13 @@
 
                         {/* PREVIEW PANEL */}
                         <main className="flex-1 bg-slate-200 overflow-y-auto p-8 flex justify-center items-start custom-scrollbar">
-                            <div id="cv-document" className="a4-paper flex flex-col p-[15mm] text-slate-900">
+                            <div id="cv-document" className="a4-paper">
                                 {/* Branding Watermark (Screen only) */}
                                 <div className="absolute inset-0 flex justify-center items-center pointer-events-none opacity-[0.03] print:hidden">
                                     <img src="./logo.jpg" alt="" className="w-1/2" onError={(e)=>e.target.style.display='none'} />
                                 </div>
 
-                                <div className="z-10 relative flex-1">
+                                <div className="z-10 relative flex-1 overflow-hidden flex flex-col">
                                     {/* Header */}
                                     <div className="text-center mb-6 border-b-2 border-slate-900 pb-4">
                                         <h1 className="text-2xl font-bold uppercase mb-1">{data.personal.fullName || t.fullName}</h1>
@@ -311,65 +342,68 @@
                                         </div>
                                     </div>
 
-                                    {/* ATS Linear Layout Sections */}
-                                    {[
-                                        { title: t.summary, content: <p className="text-xs text-justify leading-relaxed whitespace-pre-line">{data.summary}</p>, show: !!data.summary },
-                                        { 
-                                            title: t.experience, 
-                                            show: data.experience.length > 0,
-                                            content: data.experience.map(exp => (
-                                                <div key={exp.id} className="mb-3 break-inside-avoid">
-                                                    <div className="flex justify-between items-baseline mb-0.5 font-bold text-xs uppercase">
-                                                        <span>{exp.role}</span>
-                                                        <span dir="ltr" className="text-[10px]">{exp.date}</span>
+                                    {/* Content Sections */}
+                                    <div className="flex-1 overflow-y-auto">
+                                        {[
+                                            { title: t.summary, content: <p className="text-xs text-justify leading-relaxed whitespace-pre-line">{data.summary}</p>, show: !!data.summary },
+                                            { 
+                                                title: t.experience, 
+                                                show: data.experience.length > 0,
+                                                content: data.experience.map(exp => (
+                                                    <div key={exp.id} className="mb-3 break-inside-avoid">
+                                                        <div className="flex justify-between items-baseline mb-0.5 font-bold text-xs uppercase">
+                                                            <span>{exp.role}</span>
+                                                            <span dir="ltr" className="text-[10px]">{exp.date}</span>
+                                                        </div>
+                                                        <div className="text-xs font-semibold mb-1 italic">{exp.company}</div>
+                                                        <p className="text-xs text-slate-700 whitespace-pre-line leading-relaxed">{exp.desc}</p>
                                                     </div>
-                                                    <div className="text-xs font-semibold mb-1 italic">{exp.company}</div>
-                                                    <p className="text-xs text-slate-700 whitespace-pre-line leading-relaxed">{exp.desc}</p>
+                                                ))
+                                            },
+                                            {
+                                                title: t.education,
+                                                show: data.education.length > 0,
+                                                content: data.education.map(edu => (
+                                                    <div key={edu.id} className="mb-2 flex justify-between items-baseline break-inside-avoid text-xs">
+                                                        <div><span className="font-bold uppercase">{edu.degree}</span> | {edu.school}</div>
+                                                        <span className="font-bold text-[10px]" dir="ltr">{edu.year}</span>
+                                                    </div>
+                                                ))
+                                            },
+                                            {
+                                                title: t.certificates,
+                                                show: data.certificates.length > 0,
+                                                content: data.certificates.map(cert => (
+                                                    <div key={cert.id} className="mb-2 flex justify-between items-baseline break-inside-avoid text-xs">
+                                                        <div><span className="font-bold uppercase">{cert.name}</span> | {cert.authority}</div>
+                                                        <span className="font-bold text-[10px]" dir="ltr">{cert.year}</span>
+                                                    </div>
+                                                ))
+                                            },
+                                            {
+                                                title: t.languages,
+                                                show: data.languages.length > 0,
+                                                content: <div className="text-xs font-medium">
+                                                    {data.languages.map((l, i) => (
+                                                        <span key={l.id}>{l.name} ({l.level}){i < data.languages.length-1 ? ' • ' : ''}</span>
+                                                    ))}
                                                 </div>
-                                            ))
-                                        },
-                                        {
-                                            title: t.education,
-                                            show: data.education.length > 0,
-                                            content: data.education.map(edu => (
-                                                <div key={edu.id} className="mb-2 flex justify-between items-baseline break-inside-avoid text-xs">
-                                                    <div><span className="font-bold uppercase">{edu.degree}</span> | {edu.school}</div>
-                                                    <span className="font-bold text-[10px]" dir="ltr">{edu.year}</span>
-                                                </div>
-                                            ))
-                                        },
-                                        {
-                                            title: t.certificates,
-                                            show: data.certificates.length > 0,
-                                            content: data.certificates.map(cert => (
-                                                <div key={cert.id} className="mb-2 flex justify-between items-baseline break-inside-avoid text-xs">
-                                                    <div><span className="font-bold uppercase">{cert.name}</span> | {cert.authority}</div>
-                                                    <span className="font-bold text-[10px]" dir="ltr">{cert.year}</span>
-                                                </div>
-                                            ))
-                                        },
-                                        {
-                                            title: t.languages,
-                                            show: data.languages.length > 0,
-                                            content: <div className="text-xs font-medium">
-                                                {data.languages.map((l, i) => (
-                                                    <span key={l.id}>{l.name} ({l.level}){i < data.languages.length-1 ? ' • ' : ''}</span>
-                                                ))}
+                                            },
+                                            {
+                                                title: t.skills,
+                                                show: !!data.skills,
+                                                content: <p className="text-xs leading-relaxed">{data.skills}</p>
+                                            }
+                                        ].map((sec, i) => sec.show && (
+                                            <div key={i} className="mb-5">
+                                                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900 border-b border-slate-400 mb-2 pb-0.5">{sec.title}</h3>
+                                                {sec.content}
                                             </div>
-                                        },
-                                        {
-                                            title: t.skills,
-                                            show: !!data.skills,
-                                            content: <p className="text-xs leading-relaxed">{data.skills}</p>
-                                        }
-                                    ].map((sec, i) => sec.show && (
-                                        <div key={i} className="mb-5">
-                                            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900 border-b border-slate-400 mb-2 pb-0.5">{sec.title}</h3>
-                                            {sec.content}
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
-                                <div className="absolute bottom-4 left-0 w-full text-center print:hidden opacity-30 text-[10px] font-bold text-slate-600 uppercase">
+
+                                <div className="text-center print:hidden opacity-30 text-[10px] font-bold text-slate-600 uppercase mt-4">
                                     {t.footerNotice}
                                 </div>
                             </div>
