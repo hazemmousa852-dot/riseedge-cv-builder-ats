@@ -11,6 +11,8 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;500;700;900&display=swap');
         
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         .font-ar { font-family: 'Cairo', sans-serif; }
         .font-en { font-family: 'Inter', sans-serif; }
         
@@ -25,60 +27,59 @@
             background: white;
             box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
             position: relative;
-            display: flex;
-            flex-direction: column;
+            page-break-after: always;
         }
 
-        /* Print optimization for ATS systems */
         @page {
             size: A4;
             margin: 0;
-            padding: 0;
         }
 
         @media print {
             * {
-                margin: 0 !important;
-                padding: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                text-shadow: none !important;
             }
             
             html, body {
-                width: 210mm !important;
-                height: 297mm !important;
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            body {
                 background: white !important;
                 color: black !important;
             }
             
-            body * { 
-                visibility: hidden; 
-            }
+            body * { visibility: hidden; }
             
             #cv-document, #cv-document * { 
                 visibility: visible; 
             }
             
             #cv-document {
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 210mm !important;
-                height: 297mm !important;
-                box-shadow: none !important;
-                margin: 0 !important;
-                padding: 15mm !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 0;
                 background: white !important;
-                display: block !important;
+                color: black;
+                box-shadow: none !important;
                 page-break-after: always;
             }
             
-            .print\:hidden { 
-                display: none !important; 
-            }
+            .print\:hidden { display: none !important; }
             
-            .a4-paper {
-                width: 210mm !important;
-                height: 297mm !important;
-                box-shadow: none !important;
+            a {
+                text-decoration: none;
+                color: inherit;
             }
         }
     </style>
@@ -172,9 +173,9 @@
             const defaultData = {
                 ar: {
                     personal: { fullName: 'حازم موسى', jobTitle: 'مستشار موارد بشرية وخبير تطوير تنظيمي', email: 'hazem@risedge.com', phone: '+20 100 000 0000', location: 'الإسكندرية، مصر', linkedin: 'linkedin.com/in/hazemmoussa' },
-                    summary: 'مستشار موارد بشرية وخبير متمرس في التطوير التنظيمي وإعادة هيكلة الشركات وبناء الكوادر البشرية والتدريب الاحترافي. متخصص في دمج الأنظمة الرقمية الحديثة وتطبيقات الذكاء الاصطناعي لأتمتة عمليات الأجور والرواتب وشؤون العاملين، مع دراية متعمقة وتحديثات تشريعات العمل المصرية والتأمينات الاجتماعية وقانون العمل رقم 14 لسنة 2025.',
+                    summary: 'مستشار موارد بشرية وخبير متمرس في التطوير التنظيمي وإعادة هيكلة الشركات وبناء الكوادر البشرية والتدريب الاحترافي. متخصص في دمج الأنظمة الرقمية الحديثة وتطبيقات الذكاء الاصطناعي لأتمتة عمليات الأجور والرواتب وشؤون العاملين.',
                     experience: [
-                        { id: 1, company: 'RisEdge Consulting', role: 'المؤسس ومستشار الموارد البشرية الرئيسي', date: '2023 - الحاضر', desc: '• قيادة وتقديم الاستشارات الاستراتيجية في مجالات الهياكل التنظيمية وإدارة المواهب للشركات.\n• تصميم وتنفيذ برامج تدريبية متخصصة لرفع كفاءة مديري وموظفي الإدارات المختلفة.\n• تطوير أدوات رقمية وحلول أتمتة متقدمة لحساب الأجور والتأمينات الاجتماعية لتبسيط الإجراءات الإدارية المعقدة.' }
+                        { id: 1, company: 'RisEdge Consulting', role: 'المؤسس ومستشار الموارد البشرية الرئيسي', date: '2023 - الحاضر', desc: '• قيادة وتقديم الاستشارات الاستراتيجية في مجالات الهياكل التنظيمية وإدارة المواهب للشركات.\n• تصميم وتنفيذ برامج تدريبية متخصصة لرفع كفاءة مديري وموظفي الإدارات المختلفة.\n• تطوير أدوات رقمية وحلول أتمتة متقدمة لحساب الأجور والتأمينات الاجتماعية.' }
                     ],
                     education: [
                         { id: 1, school: 'جامعة الإسكندرية', degree: 'بكالوريوس التجارة', year: '2007' }
@@ -184,13 +185,13 @@
                     ],
                     languages: [
                         { id: 1, name: 'العربية', level: 'اللغة الأم' },
-                        { id: 2, name: 'الإنجليزية', level: 'طلاقة (إحترافي)' }
+                        { id: 2, name: 'الإنجليزية', level: 'طلاقة (احترافي)' }
                     ],
-                    skills: 'التطوير التنظيمي (OD)، قانون العمل المصري رقم 14 لسنة 2025، هيكلة الأجور والمزايا، أتمتة الرواتب بالذكاء الاصطناعي، التدريب والتوجيه الاحترافي، إدارة شؤون العاملين'
+                    skills: 'التطوير التنظيمي (OD)، ق��نون العمل المصري، هيكلة الأجور والمزايا، أتمتة الرواتب بالذكاء الاصطناعي، التدريب والتوجيه الاحترافي، إدارة شؤون العاملين'
                 },
                 en: {
                     personal: { fullName: 'Hazem Moussa', jobTitle: 'HR Consultant & Organizational Development Expert', email: 'hazem@risedge.com', phone: '+20 100 000 0000', location: 'Alexandria, Egypt', linkedin: 'linkedin.com/in/hazemmoussa' },
-                    summary: 'Seasoned HR Consultant and Organizational Development Expert specialized in corporate restructuring, premium corporate training, and talent development. master of modern Egyptian labor legislations including Law 14 of 2025.',
+                    summary: 'Seasoned HR Consultant and Organizational Development Expert specialized in corporate restructuring, premium corporate training, and talent development. Master of modern Egyptian labor legislations and digital transformation strategies.',
                     experience: [
                         { id: 1, company: 'RisEdge Consulting', role: 'Founder & Principal HR Consultant', date: '2023 - Present', desc: '• Leading custom structural restructuring and performance matrix engineering for elite organizations.\n• Instructing and facilitating highly specialized corporate development workshops and dynamic human capital bootcamps.' }
                     ],
@@ -204,7 +205,7 @@
                         { id: 1, name: 'Arabic', level: 'Native' },
                         { id: 2, name: 'English', level: 'Full Professional Proficiency' }
                     ],
-                    skills: 'Organizational Development (OD), Egyptian Labor Law 14/2025, Strategic Training & Facilitation, AI Payroll Integrations, Compensation & Benefits, Personnel Affairs Strategy'
+                    skills: 'Organizational Development (OD), Egyptian Labor Law, Strategic Training & Facilitation, AI Payroll Integrations, Compensation & Benefits, Personnel Affairs Strategy'
                 }
             };
 
@@ -225,7 +226,6 @@
                 setData({ ...data, personal: { ...data.personal, [field]: value } });
             };
 
-            // Generic Add/Update/Delete functions for lists
             const addItem = (listName, template) => {
                 setData({ ...data, [listName]: [...data[listName], { id: Date.now(), ...template }] });
             };
@@ -288,7 +288,7 @@
                                 <textarea rows="4" value={data.summary} onChange={(e) => setData({...data, summary: e.target.value})} className="w-full text-sm border border-slate-300 p-2 rounded outline-none resize-none"></textarea>
                             </section>
 
-                            {/* Dynamic Sections (Exp, Edu, Cert, Lang) */}
+                            {/* Dynamic Sections */}
                             {[
                                 { name: 'experience', title: t.experience, addBtn: t.addExpBtn, fields: [{n:'role', p:t.role}, {n:'company', p:t.company}, {n:'date', p:t.date}, {n:'desc', p:t.desc, area:true}], template: {role:'', company:'', date:'', desc:''} },
                                 { name: 'education', title: t.education, addBtn: t.addEduBtn, fields: [{n:'degree', p:t.degree}, {n:'school', p:t.school}, {n:'year', p:t.year}], template: {degree:'', school:'', year:''} },
@@ -303,7 +303,7 @@
                                     {data[sec.name].map(item => (
                                         <div key={item.id} className="p-3 bg-slate-50 rounded border mb-3 relative group">
                                             <button onClick={() => deleteItem(sec.name, item.id)} className="absolute top-1 left-1 text-[10px] text-red-500 opacity-0 group-hover:opacity-100 transition">{t.deleteBtn}</button>
-                                            <div className="space-y-2">
+                                            <div className="space-y-2 pt-2">
                                                 {sec.fields.map(f => (
                                                     f.area ? 
                                                     <textarea key={f.n} rows="2" placeholder={f.p} value={item[f.n]} onChange={(e) => updateItem(sec.name, item.id, f.n, e.target.value)} className="w-full text-xs border p-1.5 rounded outline-none"></textarea> :
@@ -322,89 +322,103 @@
                         </aside>
 
                         {/* PREVIEW PANEL */}
-                        <main className="flex-1 bg-slate-200 overflow-y-auto p-8 flex justify-center items-start custom-scrollbar">
-                            <div id="cv-document" className="a4-paper">
-                                {/* Branding Watermark (Screen only) */}
-                                <div className="absolute inset-0 flex justify-center items-center pointer-events-none opacity-[0.03] print:hidden">
-                                    <img src="./logo.jpg" alt="" className="w-1/2" onError={(e)=>e.target.style.display='none'} />
-                                </div>
-
-                                <div className="z-10 relative flex-1 overflow-hidden flex flex-col">
-                                    {/* Header */}
-                                    <div className="text-center mb-6 border-b-2 border-slate-900 pb-4">
-                                        <h1 className="text-2xl font-bold uppercase mb-1">{data.personal.fullName || t.fullName}</h1>
-                                        <h2 className="text-sm font-semibold text-slate-700 uppercase mb-3">{data.personal.jobTitle || t.jobTitle}</h2>
-                                        <div className="flex flex-wrap justify-center gap-x-4 text-xs text-slate-600 font-medium">
+                        <main className="flex-1 bg-slate-200 overflow-y-auto p-4 flex justify-center items-start custom-scrollbar">
+                            <div id="cv-document" className="a4-paper flex flex-col text-slate-900">
+                                <div className="relative flex flex-col h-full w-full" style={{padding: '15mm 12mm', color: 'black', fontSize: '11pt', lineHeight: '1.4', fontFamily: lang === 'ar' ? "'Cairo', sans-serif" : "'Inter', sans-serif"}}>
+                                    
+                                    {/* Header Section */}
+                                    <div className="text-center mb-4 pb-3" style={{borderBottom: '2px solid black'}}>
+                                        <h1 style={{fontSize: '18pt', fontWeight: 'bold', marginBottom: '4px'}}>{data.personal.fullName || t.fullName}</h1>
+                                        <h2 style={{fontSize: '11pt', fontWeight: '600', marginBottom: '8px'}}>{data.personal.jobTitle || t.jobTitle}</h2>
+                                        <div style={{fontSize: '10pt', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px'}}>
                                             {data.personal.location && <span>{data.personal.location}</span>}
+                                            {data.personal.phone && <span>•</span>}
                                             {data.personal.phone && <span dir="ltr">{data.personal.phone}</span>}
+                                            {data.personal.email && <span>•</span>}
                                             {data.personal.email && <span>{data.personal.email}</span>}
+                                            {data.personal.linkedin && <span>•</span>}
                                             {data.personal.linkedin && <span>{data.personal.linkedin}</span>}
                                         </div>
                                     </div>
 
                                     {/* Content Sections */}
                                     <div className="flex-1 overflow-y-auto">
-                                        {[
-                                            { title: t.summary, content: <p className="text-xs text-justify leading-relaxed whitespace-pre-line">{data.summary}</p>, show: !!data.summary },
-                                            { 
-                                                title: t.experience, 
-                                                show: data.experience.length > 0,
-                                                content: data.experience.map(exp => (
-                                                    <div key={exp.id} className="mb-3 break-inside-avoid">
-                                                        <div className="flex justify-between items-baseline mb-0.5 font-bold text-xs uppercase">
-                                                            <span>{exp.role}</span>
-                                                            <span dir="ltr" className="text-[10px]">{exp.date}</span>
+                                        {/* Summary */}
+                                        {data.summary && (
+                                            <div style={{marginBottom: '12px'}}>
+                                                <h3 style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '6px', paddingBottom: '2px'}}>{t.summary}</h3>
+                                                <p style={{fontSize: '10pt', textAlign: 'justify', lineHeight: '1.5', whiteSpace: 'pre-wrap'}}>{data.summary}</p>
+                                            </div>
+                                        )}
+
+                                        {/* Experience */}
+                                        {data.experience.length > 0 && (
+                                            <div style={{marginBottom: '12px'}}>
+                                                <h3 style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '8px', paddingBottom: '2px'}}>{t.experience}</h3>
+                                                {data.experience.map((exp, idx) => (
+                                                    <div key={exp.id} style={{marginBottom: idx < data.experience.length - 1 ? '10px' : '0', paddingBottom: '8px', borderBottom: idx < data.experience.length - 1 ? '0.5px solid #ddd' : 'none'}}>
+                                                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '3px'}}>
+                                                            <span style={{fontSize: '10.5pt', fontWeight: 'bold'}}>{exp.role}</span>
+                                                            <span dir="ltr" style={{fontSize: '9.5pt', fontWeight: 'bold'}}>{exp.date}</span>
                                                         </div>
-                                                        <div className="text-xs font-semibold mb-1 italic">{exp.company}</div>
-                                                        <p className="text-xs text-slate-700 whitespace-pre-line leading-relaxed">{exp.desc}</p>
+                                                        <div style={{fontSize: '10pt', fontWeight: '600', fontStyle: 'italic', marginBottom: '4px'}}>{exp.company}</div>
+                                                        <p style={{fontSize: '10pt', whiteSpace: 'pre-wrap', lineHeight: '1.4', color: '#333'}}>{exp.desc}</p>
                                                     </div>
-                                                ))
-                                            },
-                                            {
-                                                title: t.education,
-                                                show: data.education.length > 0,
-                                                content: data.education.map(edu => (
-                                                    <div key={edu.id} className="mb-2 flex justify-between items-baseline break-inside-avoid text-xs">
-                                                        <div><span className="font-bold uppercase">{edu.degree}</span> | {edu.school}</div>
-                                                        <span className="font-bold text-[10px]" dir="ltr">{edu.year}</span>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* Education */}
+                                        {data.education.length > 0 && (
+                                            <div style={{marginBottom: '12px'}}>
+                                                <h3 style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '8px', paddingBottom: '2px'}}>{t.education}</h3>
+                                                {data.education.map((edu, idx) => (
+                                                    <div key={edu.id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: '10pt', marginBottom: idx < data.education.length - 1 ? '6px' : '0', paddingBottom: idx < data.education.length - 1 ? '4px' : '0', borderBottom: idx < data.education.length - 1 ? '0.5px solid #ddd' : 'none'}}>
+                                                        <div><span style={{fontWeight: 'bold'}}>{edu.degree}</span> | {edu.school}</div>
+                                                        <span style={{fontWeight: 'bold', fontSize: '9.5pt'}} dir="ltr">{edu.year}</span>
                                                     </div>
-                                                ))
-                                            },
-                                            {
-                                                title: t.certificates,
-                                                show: data.certificates.length > 0,
-                                                content: data.certificates.map(cert => (
-                                                    <div key={cert.id} className="mb-2 flex justify-between items-baseline break-inside-avoid text-xs">
-                                                        <div><span className="font-bold uppercase">{cert.name}</span> | {cert.authority}</div>
-                                                        <span className="font-bold text-[10px]" dir="ltr">{cert.year}</span>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* Certificates */}
+                                        {data.certificates.length > 0 && (
+                                            <div style={{marginBottom: '12px'}}>
+                                                <h3 style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '8px', paddingBottom: '2px'}}>{t.certificates}</h3>
+                                                {data.certificates.map((cert, idx) => (
+                                                    <div key={cert.id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: '10pt', marginBottom: idx < data.certificates.length - 1 ? '6px' : '0', paddingBottom: idx < data.certificates.length - 1 ? '4px' : '0', borderBottom: idx < data.certificates.length - 1 ? '0.5px solid #ddd' : 'none'}}>
+                                                        <div><span style={{fontWeight: 'bold'}}>{cert.name}</span> | {cert.authority}</div>
+                                                        <span style={{fontWeight: 'bold', fontSize: '9.5pt'}} dir="ltr">{cert.year}</span>
                                                     </div>
-                                                ))
-                                            },
-                                            {
-                                                title: t.languages,
-                                                show: data.languages.length > 0,
-                                                content: <div className="text-xs font-medium">
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* Languages */}
+                                        {data.languages.length > 0 && (
+                                            <div style={{marginBottom: '12px'}}>
+                                                <h3 style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '6px', paddingBottom: '2px'}}>{t.languages}</h3>
+                                                <div style={{fontSize: '10pt'}}>
                                                     {data.languages.map((l, i) => (
                                                         <span key={l.id}>{l.name} ({l.level}){i < data.languages.length-1 ? ' • ' : ''}</span>
                                                     ))}
                                                 </div>
-                                            },
-                                            {
-                                                title: t.skills,
-                                                show: !!data.skills,
-                                                content: <p className="text-xs leading-relaxed">{data.skills}</p>
-                                            }
-                                        ].map((sec, i) => sec.show && (
-                                            <div key={i} className="mb-5">
-                                                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900 border-b border-slate-400 mb-2 pb-0.5">{sec.title}</h3>
-                                                {sec.content}
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
+                                        )}
 
-                                <div className="text-center print:hidden opacity-30 text-[10px] font-bold text-slate-600 uppercase mt-4">
-                                    {t.footerNotice}
+                                        {/* Skills */}
+                                        {data.skills && (
+                                            <div>
+                                                <h3 style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '6px', paddingBottom: '2px'}}>{t.skills}</h3>
+                                                <p style={{fontSize: '10pt', lineHeight: '1.5', textAlign: 'justify'}}>{data.skills}</p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Footer */}
+                                    <div style={{textAlign: 'center', marginTop: '8px', paddingTop: '8px', fontSize: '8pt', color: '#999'}} className="print:hidden">
+                                        {t.footerNotice}
+                                    </div>
                                 </div>
                             </div>
                         </main>
