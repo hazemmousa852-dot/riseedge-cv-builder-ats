@@ -23,16 +23,19 @@
 
         .a4-paper {
             width: 210mm;
-            height: 297mm;
+            min-height: 297mm;
             background: white;
             box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
             position: relative;
-            page-break-after: always;
         }
+
+        /* Keep related CV content together where the browser has room. */
+        .cv-header, .cv-section, .cv-item { break-inside: avoid; page-break-inside: avoid; }
+        .cv-section-title { break-after: avoid; page-break-after: avoid; }
 
         @page {
             size: A4;
-            margin: 0;
+            margin: 15mm 12mm;
         }
 
         @media print {
@@ -43,11 +46,11 @@
             }
             
             html, body {
-                width: 210mm;
-                height: 297mm;
+                width: auto;
+                height: auto;
                 margin: 0;
                 padding: 0;
-                overflow: hidden;
+                overflow: visible;
             }
             
             body {
@@ -62,17 +65,25 @@
             }
             
             #cv-document {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 210mm;
-                height: 297mm;
+                position: static;
+                width: auto;
+                min-height: 0;
+                height: auto;
                 margin: 0;
                 padding: 0;
                 background: white !important;
                 color: black;
                 box-shadow: none !important;
-                page-break-after: always;
+            }
+
+            #cv-document .cv-content {
+                display: block;
+                overflow: visible;
+            }
+
+            /* The @page margin is repeated on every printed page. */
+            #cv-document > div {
+                padding: 0 !important;
             }
             
             .print\:hidden { display: none !important; }
@@ -324,10 +335,10 @@
                         {/* PREVIEW PANEL */}
                         <main className="flex-1 bg-slate-200 overflow-y-auto p-4 flex justify-center items-start custom-scrollbar">
                             <div id="cv-document" className="a4-paper flex flex-col text-slate-900">
-                                <div className="relative flex flex-col h-full w-full" style={{padding: '15mm 12mm', color: 'black', fontSize: '11pt', lineHeight: '1.4', fontFamily: lang === 'ar' ? "'Cairo', sans-serif" : "'Inter', sans-serif"}}>
+                                <div className="relative flex flex-col w-full" style={{padding: '15mm 12mm', color: 'black', fontSize: '11pt', lineHeight: '1.4', fontFamily: lang === 'ar' ? "'Cairo', sans-serif" : "'Inter', sans-serif"}}>
                                     
                                     {/* Header Section */}
-                                    <div className="text-center mb-4 pb-3" style={{borderBottom: '2px solid black'}}>
+                                    <div className="cv-header text-center mb-4 pb-3" style={{borderBottom: '2px solid black'}}>
                                         <h1 style={{fontSize: '18pt', fontWeight: 'bold', marginBottom: '4px'}}>{data.personal.fullName || t.fullName}</h1>
                                         <h2 style={{fontSize: '11pt', fontWeight: '600', marginBottom: '8px'}}>{data.personal.jobTitle || t.jobTitle}</h2>
                                         <div style={{fontSize: '10pt', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px'}}>
@@ -342,21 +353,21 @@
                                     </div>
 
                                     {/* Content Sections */}
-                                    <div className="flex-1 overflow-y-auto">
+                                    <div className="cv-content">
                                         {/* Summary */}
                                         {data.summary && (
-                                            <div style={{marginBottom: '12px'}}>
-                                                <h3 style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '6px', paddingBottom: '2px'}}>{t.summary}</h3>
+                                            <div className="cv-section" style={{marginBottom: '12px'}}>
+                                                <h3 className="cv-section-title" style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '6px', paddingBottom: '2px'}}>{t.summary}</h3>
                                                 <p style={{fontSize: '10pt', textAlign: 'justify', lineHeight: '1.5', whiteSpace: 'pre-wrap'}}>{data.summary}</p>
                                             </div>
                                         )}
 
                                         {/* Experience */}
                                         {data.experience.length > 0 && (
-                                            <div style={{marginBottom: '12px'}}>
-                                                <h3 style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '8px', paddingBottom: '2px'}}>{t.experience}</h3>
+                                            <div className="cv-section" style={{marginBottom: '12px'}}>
+                                                <h3 className="cv-section-title" style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '8px', paddingBottom: '2px'}}>{t.experience}</h3>
                                                 {data.experience.map((exp, idx) => (
-                                                    <div key={exp.id} style={{marginBottom: idx < data.experience.length - 1 ? '10px' : '0', paddingBottom: '8px', borderBottom: idx < data.experience.length - 1 ? '0.5px solid #ddd' : 'none'}}>
+                                                    <div key={exp.id} className="cv-item" style={{marginBottom: idx < data.experience.length - 1 ? '10px' : '0', paddingBottom: '8px', borderBottom: idx < data.experience.length - 1 ? '0.5px solid #ddd' : 'none'}}>
                                                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '3px'}}>
                                                             <span style={{fontSize: '10.5pt', fontWeight: 'bold'}}>{exp.role}</span>
                                                             <span dir="ltr" style={{fontSize: '9.5pt', fontWeight: 'bold'}}>{exp.date}</span>
@@ -370,10 +381,10 @@
 
                                         {/* Education */}
                                         {data.education.length > 0 && (
-                                            <div style={{marginBottom: '12px'}}>
-                                                <h3 style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '8px', paddingBottom: '2px'}}>{t.education}</h3>
+                                            <div className="cv-section" style={{marginBottom: '12px'}}>
+                                                <h3 className="cv-section-title" style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '8px', paddingBottom: '2px'}}>{t.education}</h3>
                                                 {data.education.map((edu, idx) => (
-                                                    <div key={edu.id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: '10pt', marginBottom: idx < data.education.length - 1 ? '6px' : '0', paddingBottom: idx < data.education.length - 1 ? '4px' : '0', borderBottom: idx < data.education.length - 1 ? '0.5px solid #ddd' : 'none'}}>
+                                                    <div key={edu.id} className="cv-item" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: '10pt', marginBottom: idx < data.education.length - 1 ? '6px' : '0', paddingBottom: idx < data.education.length - 1 ? '4px' : '0', borderBottom: idx < data.education.length - 1 ? '0.5px solid #ddd' : 'none'}}>
                                                         <div><span style={{fontWeight: 'bold'}}>{edu.degree}</span> | {edu.school}</div>
                                                         <span style={{fontWeight: 'bold', fontSize: '9.5pt'}} dir="ltr">{edu.year}</span>
                                                     </div>
@@ -383,10 +394,10 @@
 
                                         {/* Certificates */}
                                         {data.certificates.length > 0 && (
-                                            <div style={{marginBottom: '12px'}}>
-                                                <h3 style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '8px', paddingBottom: '2px'}}>{t.certificates}</h3>
+                                            <div className="cv-section" style={{marginBottom: '12px'}}>
+                                                <h3 className="cv-section-title" style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '8px', paddingBottom: '2px'}}>{t.certificates}</h3>
                                                 {data.certificates.map((cert, idx) => (
-                                                    <div key={cert.id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: '10pt', marginBottom: idx < data.certificates.length - 1 ? '6px' : '0', paddingBottom: idx < data.certificates.length - 1 ? '4px' : '0', borderBottom: idx < data.certificates.length - 1 ? '0.5px solid #ddd' : 'none'}}>
+                                                    <div key={cert.id} className="cv-item" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: '10pt', marginBottom: idx < data.certificates.length - 1 ? '6px' : '0', paddingBottom: idx < data.certificates.length - 1 ? '4px' : '0', borderBottom: idx < data.certificates.length - 1 ? '0.5px solid #ddd' : 'none'}}>
                                                         <div><span style={{fontWeight: 'bold'}}>{cert.name}</span> | {cert.authority}</div>
                                                         <span style={{fontWeight: 'bold', fontSize: '9.5pt'}} dir="ltr">{cert.year}</span>
                                                     </div>
@@ -396,8 +407,8 @@
 
                                         {/* Languages */}
                                         {data.languages.length > 0 && (
-                                            <div style={{marginBottom: '12px'}}>
-                                                <h3 style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '6px', paddingBottom: '2px'}}>{t.languages}</h3>
+                                            <div className="cv-section" style={{marginBottom: '12px'}}>
+                                                <h3 className="cv-section-title" style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '6px', paddingBottom: '2px'}}>{t.languages}</h3>
                                                 <div style={{fontSize: '10pt'}}>
                                                     {data.languages.map((l, i) => (
                                                         <span key={l.id}>{l.name} ({l.level}){i < data.languages.length-1 ? ' • ' : ''}</span>
@@ -408,8 +419,8 @@
 
                                         {/* Skills */}
                                         {data.skills && (
-                                            <div>
-                                                <h3 style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '6px', paddingBottom: '2px'}}>{t.skills}</h3>
+                                            <div className="cv-section">
+                                                <h3 className="cv-section-title" style={{fontSize: '11pt', fontWeight: 'bold', borderBottom: '1px solid black', marginBottom: '6px', paddingBottom: '2px'}}>{t.skills}</h3>
                                                 <p style={{fontSize: '10pt', lineHeight: '1.5', textAlign: 'justify'}}>{data.skills}</p>
                                             </div>
                                         )}
