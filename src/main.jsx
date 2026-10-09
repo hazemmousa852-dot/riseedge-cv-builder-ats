@@ -36,7 +36,7 @@ function App() {
   const remove = (section, id) => setData(d => ({ ...d, [section]: d[section].filter(item => item.id !== id) }));
 
   return <div className="app" dir={isArabic ? 'rtl' : 'ltr'}>
-    <header className="toolbar print-hidden"><div className="brand"><img src="/logo.jpg" alt="RisEdge" /> <strong>RisEdge</strong></div><div><button onClick={() => setLang(isArabic ? 'en' : 'ar')}>{t.language}</button><button className="primary" onClick={() => window.print()}>{t.print}</button></div></header>
+    <header className="toolbar print-hidden"><div className="brand"><img src="https://hazemmousa852-dot.github.io/marjaak-alqanuni/brand/logo-512.png" alt={isArabic ? 'شعار حازم موسى' : 'Hazem Moussa logo'} width={48} height={48} className="hm-tool-logo hm-tool-logo--compact" /> <strong>{isArabic ? 'حازم موسى' : 'Hazem Moussa'}</strong></div><div><button onClick={() => setLang(isArabic ? 'en' : 'ar')}>{t.language}</button><button className="primary" onClick={() => window.print()}>{t.print}</button></div></header>
     <div className="workspace">
       <aside className="editor print-hidden">
         <h1>{isArabic ? 'بناء سيرة ذاتية احترافية' : 'Build a professional CV'}</h1>
@@ -62,3 +62,4 @@ function FormTitle({ title }) { return <h2 className="form-title">{title}</h2>; 
 function CVSection({ title, children }) { return <section className="cv-section"><h3>{title}</h3>{children}</section>; }
 
 createRoot(document.getElementById('root')).render(<App />);
+
