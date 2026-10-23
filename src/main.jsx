@@ -24,9 +24,24 @@ const sectionFields = {
   languages: ['name', 'level'],
 };
 
+const DRAFT_KEY = 'hazem-cv-draft-v1';
+function loadDraft() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+    if (saved?.version !== 1 || !saved.data || !saved.data.personal) return null;
+    const d = saved.data;
+    if (!Object.keys(initialData.personal).every(k => typeof d.personal[k] === 'string')) return null;
+    if (!['summary','skills'].every(k => typeof d[k] === 'string')) return null;
+    if (!Object.entries(sectionFields).every(([key,fields]) => Array.isArray(d[key]) && d[key].length <= 100 && d[key].every(item => item && ['string','number'].includes(typeof item.id) && fields.every(f => item[f] == null || typeof item[f] === 'string')))) return null;
+    return d;
+  } catch { return null; }
+}
 function App() {
   const [lang, setLang] = useState('ar');
-  const [data, setData] = useState(initialData);
+  const [data, setData] = useState(() => loadDraft() || initialData);
+  const [draftStatus,setDraftStatus] = useState('');
+  const saveDraft = () => { try { localStorage.setItem(DRAFT_KEY,JSON.stringify({version:1,data})); setDraftStatus(lang === 'ar' ? 'تم حفظ المسودة على هذا الجهاز. احفظ مرة أخرى بعد أي تعديل.' : 'Draft saved on this device. Save again after changes.'); } catch { setDraftStatus(lang === 'ar' ? 'تعذر الحفظ؛ احتفظ بنسخة PDF قبل الإغلاق.' : 'Save failed. Export before closing.'); } };
+  const clearDraft = () => { try { localStorage.removeItem(DRAFT_KEY); setDraftStatus(lang === 'ar' ? 'تم مسح المسودة المحفوظة؛ بيانات الشاشة مستمرة حتى الإغلاق.' : 'Saved draft cleared; current screen data remains.'); } catch { setDraftStatus('تعذر مسح المسودة.'); } };
   const t = copy[lang];
   const isArabic = lang === 'ar';
   const updatePersonal = (key, value) => setData(d => ({ ...d, personal: { ...d.personal, [key]: value } }));
@@ -36,14 +51,14 @@ function App() {
   const remove = (section, id) => setData(d => ({ ...d, [section]: d[section].filter(item => item.id !== id) }));
 
   return <div className="app" dir={isArabic ? 'rtl' : 'ltr'}>
-    <header className="toolbar print-hidden"><div className="brand"><img src="https://hazemmousa852-dot.github.io/marjaak-alqanuni/brand/logo-512.png" alt={isArabic ? 'شعار حازم موسى' : 'Hazem Moussa logo'} width={48} height={48} className="hm-tool-logo hm-tool-logo--compact" /> <strong>{isArabic ? 'حازم موسى' : 'Hazem Moussa'}</strong></div><div><button onClick={() => setLang(isArabic ? 'en' : 'ar')}>{t.language}</button><button className="primary" onClick={() => window.print()}>{t.print}</button></div></header>
+    <header className="toolbar print-hidden"><div className="brand"><img src="https://hazemmousa852-dot.github.io/marjaak-alqanuni/brand/logo-512.png" alt={isArabic ? 'شعار حازم موسى' : 'Hazem Moussa logo'} width={48} height={48} className="hm-tool-logo hm-tool-logo--compact" /> <strong>{isArabic ? 'حازم موسى' : 'Hazem Moussa'}</strong></div><div><button onClick={() => setLang(isArabic ? 'en' : 'ar')}>{t.language}</button><button onClick={saveDraft}>{isArabic ? 'حفظ مسودة على الجهاز' : 'Save draft on device'}</button><button onClick={clearDraft}>{isArabic ? 'مسح المسودة المحفوظة' : 'Clear saved draft'}</button><button className="primary" onClick={() => window.print()}>{t.print}</button></div></header>
     <div className="workspace">
       <aside className="editor print-hidden">
         <h1>{isArabic ? 'بناء سيرة ذاتية احترافية' : 'Build a professional CV'}</h1>
-        <FormTitle title={isArabic ? 'بيانات الاتصال' : 'Contact details'} />
-        {Object.entries(data.personal).map(([key, value]) => <input key={key} aria-label={t[key]} placeholder={t[key]} value={value} onChange={e => updatePersonal(key, e.target.value)} />)}
+        <p role="status">{draftStatus}</p><p>{isArabic ? "بيانات المثال للتوضيح؛ استبدلها قبل التصدير. الحفظ اختياري على هذا الجهاز فقط." : "Sample data: replace before exporting. Saving is optional and local to this device."}</p><button onClick={() => setData({...initialData,personal:Object.fromEntries(Object.keys(initialData.personal).map(k=>[k,''])),summary:'',skills:'',experience:[],education:[],certificates:[],languages:[]})}>{isArabic ? "ابدأ بسيرة فارغة" : "Start blank"}</button><FormTitle title={isArabic ? 'بيانات الاتصال' : 'Contact details'} />
+        {Object.entries(data.personal).map(([key, value]) => <input key={key} type={key === 'email' ? 'email' : key === 'phone' ? 'tel' : 'text'} aria-label={t[key]} placeholder={t[key]} value={value} onChange={e => updatePersonal(key, e.target.value)} />)}
         <FormTitle title={t.summary} /><textarea aria-label={t.summary} value={data.summary} onChange={e => update('summary', e.target.value)} />
-        {Object.entries(sectionFields).map(([section, fields]) => <section key={section}><div className="section-actions"><FormTitle title={t[section]} /><button onClick={() => add(section)}>{t.add}</button></div>{data[section].map(item => <div className="item-editor" key={item.id}>{fields.map(field => field === 'description' ? <textarea key={field} aria-label={t[field]} placeholder={t[field]} value={item[field] || ''} onChange={e => editItem(section, item.id, field, e.target.value)} /> : <input key={field} aria-label={t[field]} placeholder={t[field]} value={item[field] || ''} onChange={e => editItem(section, item.id, field, e.target.value)} />)}<button className="danger" onClick={() => remove(section, item.id)}>{t.remove}</button></div>)}</section>)}
+        {Object.entries(sectionFields).map(([section, fields]) => <section key={section}><div className="section-actions"><FormTitle title={t[section]} /><button onClick={() => add(section)}>{t.add}</button></div>{data[section].map(item => <div className="item-editor" key={item.id}>{fields.map(field => field === 'description' ? <textarea key={field} aria-label={section === 'languages' && field === 'name' ? (isArabic ? 'اسم اللغة' : 'Language name') : t[field]} placeholder={section === 'languages' && field === 'name' ? (isArabic ? 'اسم اللغة' : 'Language name') : t[field]} value={item[field] || ''} onChange={e => editItem(section, item.id, field, e.target.value)} /> : <input key={field} aria-label={section === 'languages' && field === 'name' ? (isArabic ? 'اسم اللغة' : 'Language name') : t[field]} placeholder={section === 'languages' && field === 'name' ? (isArabic ? 'اسم اللغة' : 'Language name') : t[field]} value={item[field] || ''} onChange={e => editItem(section, item.id, field, e.target.value)} />)}<button className="danger" onClick={() => remove(section, item.id)}>{t.remove}</button></div>)}</section>)}
         <FormTitle title={t.skills} /><textarea aria-label={t.skills} value={data.skills} onChange={e => update('skills', e.target.value)} />
       </aside>
       <main className="preview"><article id="cv-document" className="cv-document"><header className="cv-header"><h1>{data.personal.name || t.name}</h1><h2>{data.personal.title}</h2><p>{[data.personal.location, data.personal.phone, data.personal.email, data.personal.linkedin].filter(Boolean).join(' • ')}</p></header>
