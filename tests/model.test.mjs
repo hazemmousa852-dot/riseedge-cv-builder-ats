@@ -13,3 +13,6 @@ assert.equal(keywordMatch({skills:'Excel'},'exc'),'missing');
 assert.equal(keywordMatch(blank(),'company'),'missing');
 assert.equal(contentText({id:'Payroll',summary:'HR'}),'HR');
 console.log('Appearance validation and keyword synonym checks passed.');
+const {writingHints}=await import('../src/model.js');
+const w=blank();w.summary='أبحث عن فرصة مناسبة';w.experience=[{description:'مسؤول عن الملفات'}];assert(writingHints(w).includes('genericSummary'));assert(writingHints(w).includes('evidence'));w.summary='';w.experience=[];assert.deepEqual(writingHints(w),[]);
+console.log('Writing hint checks passed.');
