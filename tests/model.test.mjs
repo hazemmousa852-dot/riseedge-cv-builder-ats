@@ -4,3 +4,12 @@ const d=blank();assert.equal(Object.values(d.personal).every(v=>v===''),true);as
 d.personal={name:'Test User',title:'Payroll Specialist',email:'test@company.org',phone:'+20 100 123 4567',location:'Alexandria',linkedin:''};d.summary='Payroll experience';d.skills='Excel';d.education=[{id:1,degree:'Commerce'}];d.experience=[{id:2,role:'Payroll',period:'2023 - Present',description:'Reviewed payroll for 140 employees.'}];
 assert.equal(review(d).every(x=>x[1]),true);const restored=normalize(d);assert.equal(restored.experience[0].period,'2023 - Present');assert.equal(restored.projects.length,0);
 d.experience[0]={id:3,role:'HR',start:'2026-10',end:'2025-10',description:'Work'};assert.equal(review(d).find(x=>x[0]==='dates')[1],false);d.experience[0].current=true;assert.equal(review(d).find(x=>x[0]==='dates')[1],true);d.personal.email='bad';assert.equal(review(d).find(x=>x[0]==='email')[1],false);assert.throws(()=>normalize({...d,education:'bad'}));assert.throws(()=>normalize({...d,experience:[{role:42}]}));assert.equal(terms('Payroll Excel Payroll and the').join(','),'payroll,excel');d.summary='[Replace me]';assert.equal(review(d).find(x=>x[0]==='sample')[1],false);console.log('Model checks passed.');
+const {appearance,keywordMatch,contentText}=await import('../src/model.js');
+assert.deepEqual(appearance({font:99,line:'bad',margin:-1}),{font:11,line:1.5,margin:16});
+assert.deepEqual(appearance({font:'12',line:'1.35',margin:'12'}),{font:12,line:1.35,margin:12});
+assert.equal(keywordMatch({skills:'إدارة الرواتب'},'payroll'),'synonym');
+assert.equal(keywordMatch({skills:'Excel'},'excel'),'literal');
+assert.equal(keywordMatch({skills:'Excel'},'exc'),'missing');
+assert.equal(keywordMatch(blank(),'company'),'missing');
+assert.equal(contentText({id:'Payroll',summary:'HR'}),'HR');
+console.log('Appearance validation and keyword synonym checks passed.');
