@@ -40,6 +40,7 @@ function App(){
  <style>{`@page { size: A4; margin: 0; }`}</style>
  <header className="toolbar print-hidden"><a className="brand" href="https://hazemmousa852-dot.github.io/marjaak-alqanuni/hr-hub/" aria-label={say('الانتقال إلى الصفحة الرئيسية لحازم موسى','Go to Hazem Moussa home page')}><img src="https://hazemmousa852-dot.github.io/marjaak-alqanuni/brand/logo-512.png" alt={say('شعار حازم موسى','Hazem Moussa logo')}/><div><strong>HAZEM MOUSSA <em>HR & PAYROLL HUB</em></strong><small>More Than HR | People Support · Knowledge Share · Practical Solutions</small></div></a><div className="actions"><button className="lang-action" onClick={()=>{const next=ar?'en':'ar';setLang(next);setCvLang(next)}}>🌐 {ar?'English (LTR)':'العربية (RTL)'}</button><button className="demo-action" onClick={loadDemo}>✨ {say('تعبئة نموذجية','Load demo')}</button><button className="clear-action" onClick={()=>{if(window.confirm(say('مسح جميع البيانات الحالية؟','Clear all current data?')))setData(blank())}}>🗑 {say('تفريغ','Clear')}</button><button className="word-action" onClick={downloadWord}>📄 {say('تحميل Word (.docx)','Download Word (.docx)')}</button><button className="pdf-action" onClick={()=>setShowReview(true)}>🖨 {say('تحميل PDF / طباعة','Download PDF / Print')}</button></div></header>
  <nav className="workspace-tabs print-hidden"><button aria-pressed={tab==='edit'} onClick={()=>setTab('edit')}>📝 {say('نموذج التعديل','Edit form')}</button><button aria-pressed={tab==='preview'} onClick={()=>setTab('preview')}>◉ {say('المعاينة الحية (A4)','Live preview (A4)')}</button></nav>
+ <div className="ats-dashboard print-hidden"><a href="#career-tools">{say('فحص سيرة جاهزة وأدوات التقديم ↓','Check an existing CV and explore job tools ↓')}</a></div>
  <section className="ats-dashboard print-hidden"><div className="ats-card"><div className="ats-card-heading"><div><h2>{say('مؤشر الجاهزية لأنظمة ATS','ATS readiness score')}</h2><p>{say('تحقق سريع من أهم عناصر السيرة الذاتية','A quick check of key resume elements')}</p></div><strong className={score>=80?'score-good':'score-warn'}>{score}% {say('مكتمل','ready')}</strong></div><progress max="100" value={score}/><div className="ats-check-grid">{report.slice(0,8).map(([key,ok])=><span key={key} className={ok?'passed':'missing'}>{ok?'✓':'○'} {checkNames[key][ar?0:1]}</span>)}</div></div></section>
  <nav className="mobile-tabs print-hidden" aria-label={say('عرض المحرر','Workspace view')}><button aria-pressed={tab==='edit'} onClick={()=>setTab('edit')}>{say('إدخال البيانات','Edit details')}</button><button aria-pressed={tab==='preview'} onClick={()=>setTab('preview')}>{say('معاينة السيرة','Preview CV')}</button></nav>
  <div className={'workspace view-'+tab}><aside className="editor print-hidden"><h1>{say('1. البيانات الشخصية وبيانات الاتصال','1. Personal details & contact information')}</h1><p className="muted">{say('اكتب بياناتك المهنية بدقة؛ تظل البيانات على هذا المتصفح والحفظ اختياري.','Enter accurate professional details. Your data stays in this browser; saving is optional.')}</p>
@@ -72,8 +73,124 @@ function App(){
  {Object.keys(fields).map(section=>{const rows=data[section].filter(nonempty);return rows.length>0&&<CVSection key={section} title={c[section]}>{rows.map(x=><div className="cv-item" key={x.id}><strong>{x.role||x.degree||x.certificate||x.name}</strong>{(x.company||x.institution||x.issuer)&&<div>{x.company||x.institution||x.issuer}</div>}{section==='experience'&&<div className="date" dir="ltr">{x.start?`${x.start} — ${x.current?(cvLang==='ar'?'حتى الآن':'Present'):x.end||''}`:x.period}</div>}{x.year&&<div className="date" dir="ltr">{x.year}</div>}{x.level&&<p>{x.level}</p>}{x.description?.trim()&&<ul>{x.description.split('\n').filter(s=>s.trim()).map((s,i)=><li key={i}>{s.replace(/^\s*[•*-]\s*/, '')}</li>)}</ul>}</div>)}</CVSection>})}
  {data.skills.trim()&&<CVSection title={c.skills}><p>{data.skills}</p></CVSection>}
  </article></div><Pagination sourceRef={source} revision={JSON.stringify(data)+JSON.stringify(look)+cvLang} margin={look.margin} arabic={ar} onReport={setPrintReport}/></main></div>
+ <CareerTools data={data} job={job} setJob={setJob} keywords={keywords} setKeywords={setKeywords} say={say}/>
  {showReview&&<div className="modal-backdrop print-hidden"><section className="review-dialog" onKeyDown={e=>{if(e.key==='Escape')setShowReview(false);if(e.key==='Tab'){const buttons=e.currentTarget.querySelectorAll('button');if(e.shiftKey&&document.activeElement===buttons[0]){e.preventDefault();buttons[buttons.length-1].focus()}else if(!e.shiftKey&&document.activeElement===buttons[buttons.length-1]){e.preventDefault();buttons[0].focus()}}}} role="dialog" aria-modal="true" aria-label={say('مراجعة قبل التصدير','Pre-export review')}><h2>{say('مراجعة قبل التصدير','Pre-export review')}</h2><p>{say('اكتمال السيرة: ','CV completeness: ')}{score}%</p>{failed.length?<ul>{failed.map(([k])=><li key={k}>{checks[k][ar?0:1]}</li>)}{placeholders(data)&&<li>{say('راجع النصوص الإرشادية بين الأقواس.','Review bracketed placeholder text.')}</li>}</ul>:<p>{say('اكتملت الفحوص الأساسية. راجع دقة البيانات والصياغة بنفسك.','Basic checks passed. Review accuracy and wording yourself.')}</p>}<p>{say('صفحات المعاينة: ','Preview pages: ')}{printReport.count||'…'}</p>{printReport.warnings?.map(w=><p role="alert" key={w}>{w}</p>)}<p>{say('اختر A4، ومقياس 100%، وهوامش «بدون»، وأوقف رؤوس وتذييلات المتصفح. الهوامش مضمنة داخل الصفحات. راجع الملف قبل إرساله.','Choose A4, 100% scale, no margins, and disable browser headers/footers. Page margins are included. Review the saved PDF before sharing.')}</p><div className="actions"><button autoFocus onClick={()=>setShowReview(false)}>{say('العودة للتعديل','Back to editing')}</button><button onClick={downloadWord}>{say('تحميل Word قابل للتعديل','Download editable Word')}</button><button disabled={printReport.busy||!printReport.intact||printReport.warnings?.length>0} className="primary" onClick={()=>{setShowReview(false);setTimeout(async()=>{await document.fonts.ready;const title=document.title;document.title=(data.personal.name||'')+(cvLang==='ar'?' — السيرة الذاتية':' — CV');window.print();document.title=title},100)}}>{failed.length?say('طباعة رغم الملاحظات','Print with warnings'):say('طباعة / حفظ PDF','Print / Save PDF')}</button></div></section></div>}
  </div>
 }
 function CVSection({title,children}){return <section className="cv-section"><h3>{title}</h3>{children}</section>}
+
+function CareerTools({data,job,setJob,keywords,setKeywords,say}){
+ const [cv,setCv]=useState(''),[status,setStatus]=useState(''),[busy,setBusy]=useState(false);
+ const [role,setRole]=useState(''),[country,setCountry]=useState(''),[company,setCompany]=useState('');
+ const key='riseedge-applications-v1';
+ const [rows,setRows]=useState(()=>{try{const value=JSON.parse(localStorage.getItem(key));return Array.isArray(value)?value:[];}catch{return [];}});
+ const [notice,setNotice]=useState('');
+ const [profile,setProfile]=useState(null);
+ async function readFile(event){
+  const file=event.target.files?.[0];
+  event.target.value='';
+  if(!file)return;
+  setCv('');
+  setStatus('');
+  setBusy(true);
+  try{
+   if(file.size>10*1024*1024)throw Error('size');
+   if(/\.txt$/i.test(file.name))setCv(await file.text());
+   else if(/\.pdf$/i.test(file.name)){
+    const base='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/';
+    const pdfjs=await import(/* @vite-ignore */ base+'pdf.min.mjs');
+    pdfjs.GlobalWorkerOptions.workerSrc=base+'pdf.worker.min.mjs';
+    const task=pdfjs.getDocument({data:await file.arrayBuffer(),isEvalSupported:false});
+    try{
+     const pdf=await task.promise;
+     if(pdf.numPages>30)throw Error('size');
+     const pages=[];
+     for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i);
+      const {items}=await page.getTextContent();
+      pages.push(items.map(item=>item.str?item.str+(item.hasEOL?'\n':' '):'').join(''));
+     }
+     const content=pages.join('\n').trim();
+     if(!content)throw Error('empty');
+     setCv(content);
+    }finally{await task.destroy();}
+   }else throw Error('format');
+  }catch(error){
+   const messages={
+    size:say('الحد الأقصى 10 ميجابايت و30 صفحة.','Limit: 10 MB and 30 pages.'),
+    empty:say('لم يظهر نص قابل للاستخراج. الصق النص إذا كانت السيرة صورة ممسوحة.','No extractable text. Paste the text if the PDF is a scan.'),
+    format:say('اختر PDF أو TXT.','Choose PDF or TXT.')
+   };
+   setStatus(messages[error.message]||say('تعذرت قراءة الملف. جرّب لصق النص.','Could not read the file. Try pasting its text.'));
+  }finally{setBusy(false);}
+ }
+ const checks=[
+  [say('بريد إلكتروني','Email'),/[\w.+-]+@[\w.-]+\.[a-z]{2,}/i],
+  [say('قسم الخبرة','Experience section'),/experience|employment|الخبرات|الخبرة|المسار المهني/i],
+  [say('قسم التعليم','Education section'),/education|academic|التعليم|المؤهلات/i],
+  [say('قسم المهارات','Skills section'),/skills|competencies|المهارات|الكفاءات/i]
+ ];
+ const words=keywords.trim()?keywords.split(/[,،\n]+/).map(x=>x.trim()).filter(Boolean).slice(0,60):terms(job);
+ const results=[...new Set(words)].map(word=>[word,keywordMatch(cv,word)]);
+ const searchRole=role.trim()||data.personal.title.trim();
+ const searchText=[searchRole,country.trim()].filter(Boolean).join(' ');
+ const links=[
+  ['LinkedIn','https://www.linkedin.com/jobs/search/?'+new URLSearchParams({keywords:searchRole,location:country.trim()})],
+  ['Indeed','https://www.indeed.com/jobs?'+new URLSearchParams({q:searchRole,l:country.trim()})],
+  ['Google Jobs','https://www.google.com/search?'+new URLSearchParams({q:searchText+' jobs',udm:'8'})],
+  ['Bayt','https://www.bayt.com/en/international/jobs/?'+new URLSearchParams({q:searchText})]
+ ];
+ function saveRows(next){
+  try{localStorage.setItem(key,JSON.stringify(next));setRows(next);setNotice('');return true;}
+  catch{setNotice(say('تعذر حفظ التقديمات على هذا المتصفح.','Could not save applications in this browser.'));return false;}
+ }
+ async function copy(value){
+  try{await navigator.clipboard.writeText(value);setNotice(say('تم النسخ.','Copied.'));}
+  catch{setNotice(say('حدّد النص وانسخه يدويًا.','Select and copy the text manually.'));}
+ }
+ return <section id="career-tools" className="ats-dashboard print-hidden">
+  <div className="ats-card">
+   <h2>{say('أدوات التقديم على الوظائف','Job application tools')}</h2>
+   <details>
+    <summary>{say('فحص سيرة ذاتية جاهزة','Check an existing CV')}</summary>
+    <label className="field"><span>{say('اختر PDF أو TXT','Choose a PDF or TXT file')}</span><input type="file" accept=".pdf,.txt" disabled={busy} onChange={readFile}/></label>
+    <label className="field"><span>{say('راجع النص المستخرج أو الصق نص السيرة','Review extracted text or paste your CV')}</span><textarea dir="auto" rows="6" disabled={busy} value={cv} onChange={e=>setCv(e.target.value)}/></label>
+    <p role="status">{busy?say('جاري قراءة الملف…','Reading file…'):status}</p>
+    {!!cv.trim()&&<>
+     <p>{say('فحص إرشادي يعتمد على النص وعناوين الأقسام الشائعة.','A text-based check using common section headings.')}</p>
+     <ul>{checks.map(([label,pattern])=><li key={label}>{pattern.test(cv)?'✓':'○'} {label}</li>)}</ul>
+     <label className="field"><span>{say('نص إعلان الوظيفة للمقارنة','Job description to compare')}</span><textarea dir="auto" value={job} onChange={e=>setJob(e.target.value)}/></label>
+     <label className="field"><span>{say('كلمات تختارها للمقارنة، مفصولة بفواصل','Optional comma-separated keywords')}</span><input dir="auto" value={keywords} onChange={e=>setKeywords(e.target.value)}/></label>
+     {!!results.length&&<ul>{results.map(([word,kind])=><li key={word}>{kind==='literal'?say('موجود','Found'):kind==='synonym'?say('مرادف معروف','Known synonym'):say('لم يظهر في النص','Missing from text')} · {word}</li>)}</ul>}
+    </>}
+   </details>
+   <details>
+    <summary>{say('جهّز ملف لينكدإن','Prepare your LinkedIn profile')}</summary>
+    <button type="button" onClick={()=>setProfile({headline:[data.personal.title.trim(),...data.skills.split(/[,،\n]+/).map(x=>x.trim()).filter(Boolean).slice(0,2)].filter(Boolean).join(' | ').slice(0,220),about:data.summary.trim()})}>{say('استخدم بيانات السيرة الحالية','Use current CV details')}</button>
+    {profile&&[['headline',say('العنوان المهني','Headline')],['about',say('نبذة عني','About')]].map(([field,label])=><div key={field}>
+     <label className="field"><span>{label}</span><textarea dir="auto" value={profile[field]} onChange={e=>setProfile({...profile,[field]:e.target.value})}/></label>
+     <button type="button" disabled={!profile[field].trim()} onClick={()=>copy(profile[field])}>{say('نسخ','Copy')} · {label}</button>
+    </div>)}
+   </details>
+   <details>
+    <summary>{say('البحث عن وظائف ومتابعة التقديمات','Find jobs and track applications')}</summary>
+    <label className="field"><span>{say('المسمى الوظيفي','Job title')}</span><input value={role} placeholder={data.personal.title} onChange={e=>setRole(e.target.value)}/></label>
+    <label className="field"><span>{say('الدولة أو المدينة','Country or city')}</span><input value={country} onChange={e=>setCountry(e.target.value)}/></label>
+    {searchRole&&<div className="actions">{links.map(([name,url])=><a key={name} href={url} target="_blank" rel="noopener noreferrer">{name} ↗</a>)}</div>}
+    <form onSubmit={e=>{e.preventDefault();if(searchRole&&company.trim()&&saveRows([{id:uid(),role:searchRole,company:company.trim(),status:'applied',date:new Date().toISOString()},...rows]))setCompany('');}}>
+     <label className="field"><span>{say('اسم الشركة','Company')}</span><input value={company} required onChange={e=>setCompany(e.target.value)}/></label>
+     <button disabled={!searchRole||!company.trim()}>{say('سجّل تقديمًا','Log an application')}</button>
+    </form>
+    <p>{say('تُحفظ التقديمات على هذا المتصفح.','Applications are saved in this browser.')}</p>
+    <ul>{rows.map(row=><li key={row.id}><strong>{row.role} · {row.company}</strong> <time dateTime={row.date}>{new Date(row.date).toLocaleDateString()}</time>
+     <label className="field"><span>{say('حالة التقديم','Application status')}</span><select value={row.status} onChange={e=>saveRows(rows.map(x=>x.id===row.id?{...x,status:e.target.value}:x))}>
+      <option value="applied">{say('تم التقديم','Applied')}</option><option value="interview">{say('مقابلة','Interview')}</option><option value="offer">{say('عرض عمل','Offer')}</option><option value="closed">{say('مغلق','Closed')}</option>
+     </select></label>
+     <button type="button" onClick={()=>{if(window.confirm(say('حذف هذا التقديم؟','Delete this application?')))saveRows(rows.filter(x=>x.id!==row.id));}}>{say('حذف','Delete')}</button>
+    </li>)}</ul>
+   </details>
+   {notice&&<p role="status">{notice}</p>}
+  </div>
+ </section>;
+}
 createRoot(document.getElementById('root')).render(<App/>);
